@@ -3,6 +3,11 @@ import app from './server';
 
 let config = Config;
 
-app.listen(config.port, function () {
+let server = app.listen(config.port, function () {
     console.log('listening at', config.port);
+});
+
+process.on('SIGTERM', function () {
+    console.log('Shitting down');
+    server.close();
 });

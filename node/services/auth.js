@@ -8,12 +8,6 @@ const userdb = process.env.DB_USER;
 const passworddb = process.env.DB_PASSWORD;
 const database = process.env.DB_DATABASE;
 const secret = process.env.JWT_KTY;
-
-//health
-export const health = (req, res, next) => {
-    res.send('OK');
-    next();
-};
 /* This database data is here just for you to test, please, remember to define your own DB
 # You can test with username = admin, password = secret  
 # This DB has already a best practice: a salt value to store the passwords*/
@@ -64,20 +58,4 @@ export const protectFunction = (authorization) => {
         console.error('Invalid JWT Token!');
         return null;
     }
-};
-
-//cidrtomask
-export const cidrToMaskFunction = (value) => {
-    //console.log(value);
-    return value;
-};
-//masktocidr
-export const maskToCidrFunction = (value) => {
-    //console.log(value);
-    return value;
-};
-//ipv4validation
-export const ipv4ValidationFunction = (value) => {
-    //console.log(value);
-    return true;
 };

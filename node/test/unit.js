@@ -1,5 +1,5 @@
 import chai from 'chai';
-import * as methods from '../../services/methods.s';
+import { loginFunction, protectFunction } from '../services/auth.js';
 
 const expect = chai.expect;
 
@@ -9,26 +9,30 @@ const badToken = `${adminToken}_dataextra`;
 
 describe('loginFunction()', function () {
     it('Test login', async function () {
-        expect(adminToken).to.be.equal(
-            await methods.loginFunction('admin', 'secret')
+        expect(adminToken).to.be.equal(await loginFunction('admin', 'secret'));
+    });
+
+    it('Test login wrong username', async function () {
+        expect(await loginFunction('admin', 'nocorrectpassword')).to.be.equal(
+            null
         );
     });
 
-    it('Test login wrong credentials', async function () {
-        expect(
-            await methods.loginFunction('admin', 'nocorrectpassword')
-        ).to.be.equal(null);
+    it('Test login wrong password', async function () {
+        expect(await loginFunction('admin', 'nocorrectpassword')).to.be.equal(
+            null
+        );
     });
 });
 
 describe('protectFunction()', function () {
     it('Test protected', function () {
         expect('You are under protected data').to.be.equal(
-            methods.protectFunction(adminToken)
+            protectFunction(adminToken)
         );
     });
 
     it('Test protected Endpoint with no valid jwt token', function () {
-        expect(null).to.be.equal(methods.protectFunction(badToken));
+        expect(null).to.be.equal(protectFunction(badToken));
     });
 });
