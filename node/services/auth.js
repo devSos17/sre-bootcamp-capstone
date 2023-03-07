@@ -1,49 +1,34 @@
-const jwt = require('jsonwebtoken');
-const mysql = require('mysql');
-const util = require('util');
-const crypto = require('crypto');
+import jwt from 'jsonwebtoken';
+import config from 'config';
+import crypto from 'crypto';
+import { User } from '../models';
 
-const hostdb = process.env.DB_HOST;
-const userdb = process.env.DB_USER;
-const passworddb = process.env.DB_PASSWORD;
-const database = process.env.DB_DATABASE;
-const secret = process.env.JWT_KTY;
-/* This database data is here just for you to test, please, remember to define your own DB
-# You can test with username = admin, password = secret  
-# This DB has already a best practice: a salt value to store the passwords*/
-export const loginFunction = async (username, input_password) => {
-    const db = mysql.createConnection({
-        host: hostdb,
-        user: userdb,
-        password: passworddb,
-        database: database,
-    });
-    db.query = util.promisify(db.query);
+const secret = config.get('jwtKey');
+
+export const loginFunction = async (username, inputPassword) => {
     try {
-        const results = await db.query(
-            'SELECT username, salt, role,password FROM users WHERE username = ?',
-            [username]
-        );
-        const userobj = results[0];
-        const hashedPassword = crypto
-            .createHash('sha512')
-            .update(input_password + userobj.salt)
-            .digest('hex');
-        if (!hashedPassword.localeCompare(userobj.password)) {
-            const tokenJWT = jwt.sign(
-                {
-                    role: userobj.role,
-                },
-                secret,
-                {
-                    noTimestamp: true,
-                }
-            );
-            return tokenJWT;
+        const userData = await User.findByPk(username);
+        // Check user exists
+        if (!userData) {
+            return null;
         }
-        return null;
+        const user = userData.toJSON();
+
+        const hashedPsk = crypto
+            .createHash('sha512')
+            .update(inputPassword + user.salt)
+            .digest('hex');
+
+        // Check password
+        if (hashedPsk !== user.password) {
+            return null;
+        }
+        return jwt.sign({ role: user.role }, secret, {
+            noTimestamp: true,
+        });
     } catch (err) {
         console.error(err);
+        return null;
     }
 };
 

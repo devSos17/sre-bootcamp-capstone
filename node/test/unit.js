@@ -13,9 +13,7 @@ describe('loginFunction()', function () {
     });
 
     it('Test login wrong username', async function () {
-        expect(await loginFunction('admin', 'nocorrectpassword')).to.be.equal(
-            null
-        );
+        expect(await loginFunction('admins', 'secret')).to.be.equal(null);
     });
 
     it('Test login wrong password', async function () {

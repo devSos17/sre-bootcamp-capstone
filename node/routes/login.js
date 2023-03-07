@@ -1,4 +1,4 @@
-import { loginFunction } from "../services/auth.js"
+import { loginFunction } from '../services/auth.js';
 
 //login
 export const login = async (req, res, next) => {
@@ -8,7 +8,10 @@ export const login = async (req, res, next) => {
     let response = {
         data: await loginFunction(username, password),
     };
-    //console.log(response)
+    if (!response.data) {
+        res.sendStatus(403);
+        return;
+    }
     res.send(response);
     next();
 };
