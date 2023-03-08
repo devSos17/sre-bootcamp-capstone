@@ -4,12 +4,17 @@ import { cidrToMaskFunction, maskToCidrFunction } from '../services/cidr.js';
 export const cidrToMask = (req, res, next) => {
     let value = req.query.value ?? false;
     if (!value) {
-        res.status(422).send('No value provided');
     } else {
+        let mask = cidrToMaskFunction(value);
+        // Error handling
+        if (!mask) {
+            res.status(422).send('No value provided');
+            return;
+        }
         let response = {
             function: 'cidrToMask',
             input: value,
-            output: cidrToMaskFunction(value),
+            output: mask,
         };
         res.send(response);
         next();
@@ -22,10 +27,16 @@ export const maskToCidr = (req, res, next) => {
     if (!value) {
         res.status(422).send('No value provided');
     } else {
+        let cidrPrefix = maskToCidrFunction(value);
+        // Error Handling
+        if (!cidrPrefix) {
+            res.status(422).send('No value provided');
+            return;
+        }
         let response = {
             function: 'maskToCidr',
             input: value,
-            output: maskToCidrFunction(value),
+            output: cidrPrefix,
         };
         res.send(response);
         next();

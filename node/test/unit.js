@@ -1,5 +1,6 @@
 import chai from 'chai';
 import { loginFunction, protectFunction } from '../services/auth.js';
+import { cidrToMaskFunction, maskToCidrFunction } from '../services/cidr.js';
 
 const expect = chai.expect;
 
@@ -32,5 +33,24 @@ describe('protectFunction()', function () {
 
     it('Test protected Endpoint with no valid jwt token', function () {
         expect(null).to.be.equal(protectFunction(badToken));
+    });
+});
+
+describe('cidrToMaskFunction', function () {
+    it('Test Correct conversion', function () {
+        expect('255.255.255.0').to.be.equal(cidrToMaskFunction('24'));
+    });
+
+    it('Test invalid prefix', function () {
+        expect(null).to.be.equal(cidrToMaskFunction('200'));
+    });
+});
+describe('maskToCidrFunction', function () {
+    it('Test correct conversion', function () {
+        expect(16).to.be.equal(maskToCidrFunction('255.255.0.0'));
+    });
+
+    it('Test Invalid Mask', function () {
+        expect(null).to.be.equal(maskToCidrFunction('256.255.255.0'));
     });
 });
