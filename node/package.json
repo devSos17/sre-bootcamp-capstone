@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha test --recursive --require @babel/register --require @babel/polyfill",
-    "test-cov": "nyc mocha test --recursive --require @babel/register --require @babel/polyfill",
+    "coverage": "nyc mocha test --recursive --require @babel/register --require @babel/polyfill",
     "start": "NODE_ENV=production babel-node index.js",
     "dev": "nodemon --exec babel-node ./index.js"
   },
