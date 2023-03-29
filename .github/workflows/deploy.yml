@@ -16,7 +16,7 @@ permissions:
 env:
   TF_LOG: INFO
   AWS_REGION: us-east-2
-  NODE_VERSION: 19
+  NODE_VERSION: lts/*
 
 jobs:
   build:
@@ -45,7 +45,7 @@ jobs:
   container:
     runs-on: ubuntu-latest
     env:
-      IMAGE_REF: ghcr.io/${{ github.repository_owner }}/academy-sre-bootcamp-santiago-orozco:latest
+      IMAGE_REF: ghcr.io/devsos17/academy-sre-bootcamp-santiago-orozco:latest
 
     steps:
       - name: Set up QEMU
