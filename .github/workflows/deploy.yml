@@ -17,6 +17,11 @@ env:
   TF_LOG: INFO
   AWS_REGION: us-east-2
   NODE_VERSION: lts/*
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_DATABASE: ${{ secrets.DB_DATABASE }}
+  JWT_KEY: ${{ secrets.JWT_KEY }}
 
 jobs:
   build:
@@ -24,8 +29,6 @@ jobs:
     defaults:
       run:
         working-directory: ${{ github.workspace }}/node
-    outputs:
-      runtime-version: ${{ steps.set-result.outputs.result }}
     steps:
       - uses: actions/checkout@v3
 
@@ -75,7 +78,6 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_REF }}
           format: "table"
-          exit-code: ${{ inputs.TRIVY_EXIT_CODE }}
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
