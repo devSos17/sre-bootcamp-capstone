@@ -98,6 +98,8 @@ jobs:
       TF_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       TF_VAR_DB_DATABASE: ${{ secrets.DB_DATABASE }}
       TF_VAR_JWT_KEY: ${{ secrets.JWT_KEY }}
+      TF_VAR_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TF_VAR_CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_PSK }}
       AWS_REGION: us-east-1

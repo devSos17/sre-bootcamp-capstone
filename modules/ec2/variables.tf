@@ -1,8 +1,13 @@
 variable "image" {
   type        = string
   default     = "ami-02f3f602d23f1659d"
-  
 }
+
+variable "zone" {
+  type        = string
+  default     = "us-east-1a"
+}
+
 variable "instance_name" {
   description = "docker image to pull and run"
   type        = string

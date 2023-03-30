@@ -22,3 +22,13 @@ variable "JWT_KEY" {
   description = "jwt secret"
   type        = string
 }
+
+variable "CLOUDFLARE_API_TOKEN" {
+  description = "Cloudflare api to edit dns entries"
+  type        = string
+}
+
+variable "CLOUDFLARE_ZONE_ID" {
+  description = "zone id for cloudflare zone"
+  type        = string
+}
