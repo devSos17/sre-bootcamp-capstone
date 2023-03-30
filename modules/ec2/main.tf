@@ -1,4 +1,5 @@
 resource "aws_instance" "webserver_ec2" {
+  key_name               = "sre-devsos"
   ami                    = var.image
   instance_type          = "t2.micro"
   vpc_security_group_ids = var.security_group_ids

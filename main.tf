@@ -1,16 +1,27 @@
 terraform {
-  backend "s3" {}
+  backend "s3" {
+    bucket         = "sre-santiago-orozco-wize-tf-backend"
+    key            = "tf-infra/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-state-locking"
+    encrypt        = true
+  }
   required_version = ">= 1.2.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.16"
+      version = "~> 4.0"
     }
   }
 }
 
 provider "aws" {
   region = "us-east-1"
+}
+
+module "tf-state" {
+  source      = "./modules/tf-state"
+  bucket_name = "sre-santiago-orozco-wize-tf-backend"
 }
 
 variable "webservers" {
@@ -22,7 +33,7 @@ variable "webservers" {
     },
     webserver2 = {
       name  = "webserver-b"
-      image = "ami-074cce78125f09d61"
+      image = "ami-02f3f602d23f1659d"
     }
   }
 }
