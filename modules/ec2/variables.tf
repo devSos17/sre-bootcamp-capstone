@@ -8,6 +8,14 @@ variable "zone" {
   default     = "us-east-1a"
 }
 
+variable "vpc_id" {
+  type        = string
+}
+
+variable "cidr" {
+  type        = string
+}
+
 variable "instance_name" {
   description = "docker image to pull and run"
   type        = string

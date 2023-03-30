@@ -28,16 +28,30 @@ provider "aws" {
 #   bucket_name = "sre-santiago-orozco-wize-tf-backend"
 # }
 
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main"
+  }
+}
+
 variable "webservers" {
   type = map(any)
   default = {
     webserver1 = {
       name = "webserver-a"
       zone = "us-east-1a"
+      cidr = "10.0.1.0/24"
     },
     webserver2 = {
       name = "webserver-b"
       zone = "us-east-1b"
+      cidr = "10.0.2.0/24"
     }
   }
 }
@@ -47,6 +61,7 @@ module "ec2" {
   for_each           = var.webservers
   instance_name      = each.value.name
   zone               = each.value.zone
+  cidr               = each.value.cidr
   db_host            = var.DB_HOST
   db_user            = var.DB_USER
   db_password        = var.DB_PASSWORD
@@ -54,12 +69,15 @@ module "ec2" {
   jwt_key            = var.JWT_KEY
   ghcr_user          = var.GHCR_USERNAME
   ghcr_token         = var.GHCR_PASSWORD
+  vpc_id             = aws_vpc.main.id
 }
 
 # Securtiy groups
 
 resource "aws_security_group" "public_sg" {
-  name = "sre-bootcamp-pub-sg"
+  name   = "sre-bootcamp-pub-sg"
+  vpc_id = aws_vpc.main.id
+
   ingress {
     from_port   = 80
     to_port     = 80
@@ -82,12 +100,20 @@ resource "aws_security_group" "public_sg" {
 }
 
 resource "aws_security_group" "webserver_sg" {
-  name = "sre-bootcamp-webserver-sg"
+  name   = "sre-bootcamp-webserver-sg"
+  vpc_id = aws_vpc.main.id
+
   ingress {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.public_sg.id]
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = 22
@@ -111,34 +137,42 @@ resource "aws_security_group" "webserver_sg" {
 }
 
 # Load balancer
-resource "aws_elb" "loadbalancer" {
+resource "aws_lb" "loadbalancer" {
   name               = "loadbalancer"
-  availability_zones = ["us-east-1a", "us-east-1b"]
+  internal           = false
+  load_balancer_type = "application"
   security_groups    = [aws_security_group.public_sg.id]
+  subnets            = values(module.ec2)[*].subnet_id
 
-  listener {
-    instance_port     = 80
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
-
-  health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 5
-    target              = "HTTP:80/_health"
-    interval            = 30
-  }
-
-  instances                 = values(module.ec2)[*].id
-  cross_zone_load_balancing = true
   tags = {
     Name        = "loadbalancer"
     Terraform   = "true"
     Environment = terraform.workspace
     Project     = "sre-bootcamp"
   }
+}
+
+resource "aws_lb_target_group" "api_tg" {
+  vpc_id   = aws_vpc.main.id
+  name     = "tf-lb-tg"
+  port     = 80
+  protocol = "HTTP"
+}
+resource "aws_lb_listener" "web_http" {
+  load_balancer_arn = aws_lb.loadbalancer.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api_tg.arn
+  }
+}
+
+resource "aws_lb_target_group_attachment" "webservers_tg" {
+  target_group_arn = aws_lb_target_group.api_tg.arn
+  for_each         = module.ec2
+  target_id        = each.value.id
+  port             = 80
 }
 
 # CLoudflare for dns
@@ -150,7 +184,7 @@ provider "cloudflare" {
 resource "cloudflare_record" "sre-bootcamp" {
   zone_id = var.CLOUDFLARE_ZONE_ID
   name    = "sre-bootcamp"
-  value   = aws_elb.loadbalancer.dns_name
+  value   = aws_lb.loadbalancer.dns_name
   type    = "CNAME"
   proxied = true
 }

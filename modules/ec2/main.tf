@@ -1,10 +1,12 @@
 resource "aws_instance" "webserver_ec2" {
-  key_name               = "sre-devsos"
-  ami                    = var.image
-  instance_type          = "t2.micro"
-  availability_zone      = var.zone
-  vpc_security_group_ids = var.security_group_ids
-  user_data              = <<-EOF
+  key_name                    = "sre-devsos"
+  ami                         = var.image
+  instance_type               = "t2.micro"
+  availability_zone           = var.zone
+  vpc_security_group_ids      = var.security_group_ids
+  subnet_id                   = aws_subnet.pub_net.id
+  associate_public_ip_address = true
+  user_data                   = <<-EOF
 													#!/bin/bash
 													yum update -y
 													yum install -y docker
@@ -22,11 +24,17 @@ resource "aws_instance" "webserver_ec2" {
 														${var.container}
 													EOF
   tags = {
-    Name        = "web-server-${var.instance_name}" # Update the name
+    Name        = "${var.instance_name}"
     Terraform   = "true"
     Service     = "EC2"
     Project     = "sre-bootcamp"
     Environment = terraform.workspace
     Count       = "${terraform.workspace == "default" ? 5 : 1}"
   }
+}
+
+resource "aws_subnet" "pub_net" {
+  vpc_id            = var.vpc_id
+  availability_zone = var.zone
+  cidr_block        = var.cidr
 }
