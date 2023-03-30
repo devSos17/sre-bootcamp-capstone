@@ -4,8 +4,8 @@
   "description": "API for SRE Bootcamp",
   "main": "server.js",
   "scripts": {
-    "test": "mocha test --recursive --require @babel/register --require @babel/polyfill",
-    "coverage": "nyc mocha test --recursive --require @babel/register --require @babel/polyfill",
+    "test": "mocha test --recursive --require @babel/register --require @babel/polyfill --timeout 10000",
+    "coverage": "nyc npm run test",
     "start": "NODE_ENV=production babel-node index.js",
     "dev": "nodemon --exec babel-node ./index.js"
   },
