@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "aws" {
-  region = us-east-1
+  region = "us-east-1"
 }
 
 variable "webservers" {
@@ -18,22 +18,25 @@ variable "webservers" {
   default = {
     webserver1 = {
       name  = "webserver-a"
-      image = "us-east-1"
+      image = "ami-02f3f602d23f1659d"
     },
     webserver2 = {
       name  = "webserver-b"
-      image = "us-east-2"
+      image = "ami-074cce78125f09d61"
     }
   }
-
 }
-
 module "ec2" {
   source             = "./modules/ec2"
-  security_group_ids = [aws_security_group.public_sg.sg_id]
+  security_group_ids = [aws_security_group.public_sg.id]
   for_each           = var.webservers
   instance_name      = each.value.name
-  images             = each.value.image
+  image              = each.value.image
+  db_host            = var.DB_HOST
+  db_user            = var.DB_USER
+  db_password        = var.DB_PASSWORD
+  db_database        = var.DB_DATABASE
+  jwt_key            = var.JWT_KEY
 }
 
 resource "aws_security_group" "public_sg" {

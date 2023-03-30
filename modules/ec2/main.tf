@@ -1,5 +1,5 @@
 resource "aws_instance" "webserver_ec2" {
-  ami                    = var.images
+  ami                    = var.image
   instance_type          = "t2.micro"
   vpc_security_group_ids = var.security_group_ids
   user_data              = <<-EOF
@@ -11,7 +11,7 @@ resource "aws_instance" "webserver_ec2" {
 														-e DB_USER=${var.db_user} \
 														-e DB_PASSWORD=${var.db_password} \
 														-e DB_DATABASE=${var.db_database} \
-														-e JWT_KEY=${var.JWT_KEY} \
+														-e JWT_KEY=${var.jwt_key} \
 														-p 8000:80 \
 														${var.container}
 													EOF

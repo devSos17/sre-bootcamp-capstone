@@ -15,7 +15,6 @@ permissions:
 
 env:
   TF_LOG: INFO
-  AWS_REGION: us-east-2
   NODE_VERSION: lts/*
   DB_HOST: ${{ secrets.DB_HOST }}
   DB_USER: ${{ secrets.DB_USER }}
@@ -99,17 +98,13 @@ jobs:
       TF_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       TF_VAR_DB_DATABASE: ${{ secrets.DB_DATABASE }}
       TF_VAR_JWT_KEY: ${{ secrets.JWT_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_PSK }}
+      AWS_REGION: us-east-1
 
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
-
-      - name: Configure AWS credentials from AWS account
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-session-name: GitHub-OIDC-TERRAFORM
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2

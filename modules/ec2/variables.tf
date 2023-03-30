@@ -1,14 +1,8 @@
-variable "images" {
-  description = "choose image for any region"
-  type        = map(any)
-  default = {
-    us-east-1 = "ami-02f3f602d23f1659d"
-    us-east-2 = "ami-074cce78125f09d61"
-    us-west-1 = "ami-06604eb73be76c003"
-    us-west-2 = "ami-0d2017e886fc2c0ab"
-  }
+variable "image" {
+  type        = string
+  default     = "ami-02f3f602d23f1659d"
+  
 }
-
 variable "instance_name" {
   description = "docker image to pull and run"
   type        = string
@@ -26,27 +20,27 @@ variable "security_group_ids" {
   type        = list(any)
 }
 
-variable "DB_HOST" {
+variable "db_host" {
   description = "hostname for the database"
   type        = string
 }
 
-variable "DB_USER" {
+variable "db_user" {
   description = "database user"
   type        = string
 }
 
-variable "DB_PASSWORD" {
+variable "db_password" {
   description = "databse access key"
   type        = string
 }
 
-variable "DB_DATABASE" {
+variable "db_database" {
   description = "database name"
   type        = string
 }
 
-variable "JWT_KEY" {
+variable "jwt_key" {
   description = "jwt secret"
   type        = string
 }
