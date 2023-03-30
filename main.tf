@@ -52,6 +52,8 @@ module "ec2" {
   db_password        = var.DB_PASSWORD
   db_database        = var.DB_DATABASE
   jwt_key            = var.JWT_KEY
+  ghcr_user          = var.GHCR_USERNAME
+  ghcr_token         = var.GHCR_PASSWORD
 }
 
 # Securtiy groups
@@ -71,7 +73,7 @@ resource "aws_security_group" "public_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name        = "public-loadbalancer-sg" # Update the name
+    Name        = "public-loadbalancer-sg"
     Terraform   = "true"
     Environment = terraform.workspace
     Service     = "Security Groups"
@@ -100,7 +102,7 @@ resource "aws_security_group" "webserver_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name        = "webserver-sg" # Update the name
+    Name        = "webserver-sg"
     Terraform   = "true"
     Environment = terraform.workspace
     Service     = "Security Groups"
@@ -109,8 +111,8 @@ resource "aws_security_group" "webserver_sg" {
 }
 
 # Load balancer
-resource "aws_elb" "api_loadbalancer" {
-  name               = "api-loadbalancer"
+resource "aws_elb" "loadbalancer" {
+  name               = "loadbalancer"
   availability_zones = ["us-east-1a", "us-east-1b"]
   security_groups    = [aws_security_group.public_sg.id]
 
@@ -119,12 +121,6 @@ resource "aws_elb" "api_loadbalancer" {
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
-  }
-  listener {
-    instance_port     = 80
-    instance_protocol = "http"
-    lb_port           = 443
-    lb_protocol       = "https"
   }
 
   health_check {
@@ -138,7 +134,7 @@ resource "aws_elb" "api_loadbalancer" {
   instances                 = values(module.ec2)[*].id
   cross_zone_load_balancing = true
   tags = {
-    Name        = "api-loadbalancer" # Update the name
+    Name        = "loadbalancer"
     Terraform   = "true"
     Environment = terraform.workspace
     Project     = "sre-bootcamp"
@@ -154,7 +150,7 @@ provider "cloudflare" {
 resource "cloudflare_record" "sre-bootcamp" {
   zone_id = var.CLOUDFLARE_ZONE_ID
   name    = "sre-bootcamp"
-  value   = aws_elb.api_loadbalancer.dns_name
+  value   = aws_elb.loadbalancer.dns_name
   type    = "CNAME"
   proxied = true
 }

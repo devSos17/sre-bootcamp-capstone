@@ -32,3 +32,13 @@ variable "CLOUDFLARE_ZONE_ID" {
   description = "zone id for cloudflare zone"
   type        = string
 }
+
+variable "GHCR_USERNAME" {
+  description = "username for the github's registry"
+  type        = string
+}
+
+variable "GHCR_PASSWORD" {
+  description = "Token to login in github's registry"
+  type        = string
+}

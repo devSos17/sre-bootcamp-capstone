@@ -10,6 +10,7 @@ resource "aws_instance" "webserver_ec2" {
 													yum install -y docker
 													systemctl enable docker
 													systemctl start docker
+													docker login --user ${var.ghcr_user} --password ${var.ghcr_token}
 													docker run \
 														--restart always \
 														-e DB_HOST=${var.db_host} \

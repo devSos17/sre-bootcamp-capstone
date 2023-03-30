@@ -49,3 +49,13 @@ variable "jwt_key" {
   description = "jwt secret"
   type        = string
 }
+
+variable "ghcr_user" {
+  description = "username for the github's registry"
+  type        = string
+}
+
+variable "ghcr_token" {
+  description = "Token to login in github's registry"
+  type        = string
+}
