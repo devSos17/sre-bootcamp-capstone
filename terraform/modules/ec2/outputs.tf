@@ -7,3 +7,7 @@ output "subnet_id" {
   value       = aws_subnet.pub_net.id
   description = "Subnet id"
 }
+
+output "public_ip" {
+  value = aws_instance.webserver_ec2.public_ip
+}

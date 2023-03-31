@@ -1,6 +1,16 @@
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+  }
+}
+
 resource "aws_instance" "webserver_ec2" {
   key_name                    = "sre-devsos"
-  ami                         = var.image
+  ami                         = data.aws_ami.amazon_linux_2.id
   instance_type               = "t2.micro"
   availability_zone           = var.zone
   vpc_security_group_ids      = var.security_group_ids
@@ -12,14 +22,18 @@ resource "aws_instance" "webserver_ec2" {
 													yum install -y docker
 													systemctl enable docker
 													systemctl start docker
+													usermod -a -G docker ec2-user
+													su ec2-user
+													docker pull ${var.docker_image}
 													docker run \
+														--restart=always \
 														-e DB_HOST=${var.db_host} \
 														-e DB_USER=${var.db_user} \
 														-e DB_PASSWORD=${var.db_password} \
 														-e DB_DATABASE=${var.db_database} \
 														-e JWT_KEY=${var.jwt_key} \
 														-p 80:8000 -d \
-														${var.container}
+														${var.docker_image}
 													EOF
   tags = {
     Name        = "${var.instance_name}"

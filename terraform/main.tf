@@ -93,8 +93,17 @@ module "ec2" {
   vpc_id             = aws_vpc.main_vpc.id
 }
 
-# Securtiy groups
+# Provisioning generate inventory file for Ansible
+resource "local_file" "hosts_cfg" {
+  content = templatefile("${path.module}/templates/hosts.tpl",
+    {
+      webservers = values(module.ec2)[*].public_ip
+    }
+  )
+  filename = "../ansible/inventory/hosts.cfg"
+}
 
+# Securtiy groups
 resource "aws_security_group" "public_sg" {
   name   = "sre-bootcamp-pub-sg"
   vpc_id = aws_vpc.main_vpc.id
@@ -102,6 +111,13 @@ resource "aws_security_group" "public_sg" {
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

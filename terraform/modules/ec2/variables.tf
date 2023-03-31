@@ -1,8 +1,3 @@
-variable "image" {
-  type        = string
-  default     = "ami-02f3f602d23f1659d"
-}
-
 variable "zone" {
   type        = string
   default     = "us-east-1a"
@@ -22,7 +17,7 @@ variable "instance_name" {
   default     = "ghcr.io/devsos17/academy-sre-bootcamp-santiago-orozco:latest"
 }
 
-variable "container" {
+variable "docker_image" {
   description = "docker image to pull and run"
   type        = string
   default     = "ghcr.io/devsos17/academy-sre-bootcamp-santiago-orozco:latest"
