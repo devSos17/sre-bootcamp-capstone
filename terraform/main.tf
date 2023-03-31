@@ -23,11 +23,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# module "tf-state" {
-#   source      = "./modules/tf-state"
-#   bucket_name = "sre-santiago-orozco-wize-tf-backend"
-# }
-
 resource "aws_vpc" "main_vpc" {
   cidr_block = "10.0.0.0/16"
 

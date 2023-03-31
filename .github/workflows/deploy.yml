@@ -90,7 +90,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: .
+        working-directory: ./terraform
 
     env:
       TF_VAR_DB_HOST: ${{ secrets.DB_HOST }}

@@ -1,6 +1,18 @@
-# S3 Bucket for TF State File
+terraform {
+  required_version = ">=0.13.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
 resource "aws_s3_bucket" "terraform_state" {
-  bucket        = var.bucket_name
+  bucket        = "sre-santiago-orozco-wize-tf-backend"
   force_destroy = true
 }
 

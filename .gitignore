@@ -41,6 +41,9 @@ reports
 
 # Terraform
 .terraform
+terraform.tfstate
+terraform.tfstate.backup
+errored.tfstate
 
 # K8s
 provision/.kube
