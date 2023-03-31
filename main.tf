@@ -28,16 +28,42 @@ provider "aws" {
 #   bucket_name = "sre-santiago-orozco-wize-tf-backend"
 # }
 
-resource "aws_vpc" "main" {
+resource "aws_vpc" "main_vpc" {
   cidr_block = "10.0.0.0/16"
-}
-
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "main"
+    Name      = "main_vpc"
+    Terraform = "true"
   }
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name      = "main_gw"
+    Terraform = "true"
+  }
+}
+
+resource "aws_route_table" "rtb_pub" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name      = "main_rtb"
+    Terraform = "true"
+  }
+}
+
+resource "aws_route_table_association" "public_rtba" {
+  for_each       = module.ec2
+  subnet_id      = each.value.subnet_id
+  route_table_id = aws_route_table.rtb_pub.id
 }
 
 variable "webservers" {
@@ -69,14 +95,14 @@ module "ec2" {
   jwt_key            = var.JWT_KEY
   ghcr_user          = var.GHCR_USERNAME
   ghcr_token         = var.GHCR_PASSWORD
-  vpc_id             = aws_vpc.main.id
+  vpc_id             = aws_vpc.main_vpc.id
 }
 
 # Securtiy groups
 
 resource "aws_security_group" "public_sg" {
   name   = "sre-bootcamp-pub-sg"
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.main_vpc.id
 
   ingress {
     from_port   = 80
@@ -101,7 +127,7 @@ resource "aws_security_group" "public_sg" {
 
 resource "aws_security_group" "webserver_sg" {
   name   = "sre-bootcamp-webserver-sg"
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.main_vpc.id
 
   ingress {
     from_port       = 80
@@ -153,7 +179,7 @@ resource "aws_lb" "loadbalancer" {
 }
 
 resource "aws_lb_target_group" "api_tg" {
-  vpc_id   = aws_vpc.main.id
+  vpc_id   = aws_vpc.main_vpc.id
   name     = "tf-lb-tg"
   port     = 80
   protocol = "HTTP"

@@ -14,7 +14,6 @@ resource "aws_instance" "webserver_ec2" {
 													systemctl start docker
 													docker login --user ${var.ghcr_user} --password ${var.ghcr_token}
 													docker run \
-														--restart always \
 														-e DB_HOST=${var.db_host} \
 														-e DB_USER=${var.db_user} \
 														-e DB_PASSWORD=${var.db_password} \
@@ -34,7 +33,8 @@ resource "aws_instance" "webserver_ec2" {
 }
 
 resource "aws_subnet" "pub_net" {
-  vpc_id            = var.vpc_id
-  availability_zone = var.zone
-  cidr_block        = var.cidr
+  vpc_id                  = var.vpc_id
+  availability_zone       = var.zone
+  cidr_block              = var.cidr
+  map_public_ip_on_launch = true
 }
